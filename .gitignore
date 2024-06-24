@@ -1,7 +1,13 @@
 # compiled output
 /dist
 /node_modules
+<<<<<<< HEAD
 /build
+=======
+
+# enviroment variables
+.env
+>>>>>>> initial commit
 
 # Logs
 logs
@@ -29,6 +35,7 @@ lerna-debug.log*
 *.sublime-workspace
 
 # IDE - VSCode
+<<<<<<< HEAD
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -54,3 +61,6 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+=======
+.vscode/*
+>>>>>>> initial commit

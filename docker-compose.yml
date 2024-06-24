@@ -1,0 +1,18 @@
+services: 
+  api: 
+    image: rom-docker
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    volumes:
+      - .:/app  
+  mongo:
+    image: mongo
+    container_name: mongoDb
+    ports:
+      - "27017:27017"
+    restart: always 

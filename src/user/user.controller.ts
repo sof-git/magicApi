@@ -11,13 +11,14 @@ import { UserDto } from './user.dto';
 import { UserService } from './user.service';
 import { Role } from '../role/role.enum';
 import { Roles } from '../role/roles.decorator';
+import { Public } from '../auth/auth.decorator';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  //@Roles(Role.ADMIN)
+  @Public()
   createUser(@Body() user: UserDto) {
     return this.userService.createUser(user);
   }

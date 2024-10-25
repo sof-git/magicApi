@@ -19,6 +19,8 @@ export class AuthService {
     username: string,
     password: string,
   ): Promise<{ access_token: string }> {
+    console.log('username', username);
+    console.log('password', password);
     const user = await this.userService.findUserByUsername(username);
     if (!user) {
       throw new HttpException(

@@ -1,5 +1,79 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  ValidateNested,
+  IsEnum,
+  IsInt,
+  Min,
+} from 'class-validator';
 import { cardType } from '../cards/card.enum';
+import {
+  spellsTypes,
+  spellsTarget,
+  spellsDuration,
+  spellsEffect,
+} from '../types/spells.enum';
+import { Type } from 'class-transformer';
+
+export class ActiveSpellDto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  @IsNotEmpty()
+  @IsEnum(spellsTypes)
+  type: spellsTypes;
+
+  @IsNotEmpty()
+  @IsEnum(spellsTarget)
+  target: spellsTarget;
+
+  @IsNotEmpty()
+  @IsEnum(spellsDuration)
+  duration: spellsDuration;
+
+  @IsNotEmpty()
+  @IsEnum(spellsEffect)
+  effect: spellsEffect;
+
+  @IsInt()
+  @Min(1)
+  value: number;
+}
+
+export class PassiveSpellDto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  @IsNotEmpty()
+  @IsEnum(spellsTypes)
+  type: spellsTypes;
+
+  @IsNotEmpty()
+  @IsEnum(spellsTarget)
+  target: spellsTarget;
+
+  @IsNotEmpty()
+  @IsEnum(spellsDuration)
+  duration: spellsDuration;
+
+  @IsNotEmpty()
+  @IsEnum(spellsEffect)
+  effect: spellsEffect;
+
+  @IsInt()
+  @Min(1)
+  value: number;
+}
 
 export class HeroDto {
   @IsNotEmpty()
@@ -15,10 +89,12 @@ export class HeroDto {
   type: cardType;
 
   @IsNotEmpty()
-  @IsString()
-  passiveSpell: string;
+  @Type(() => PassiveSpellDto)
+  @ValidateNested()
+  passiveSpell: PassiveSpellDto;
 
   @IsNotEmpty()
-  @IsString()
-  activeSpell: string;
+  @ValidateNested()
+  @Type(() => ActiveSpellDto)
+  activeSpell: ActiveSpellDto;
 }

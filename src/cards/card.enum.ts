@@ -2,6 +2,7 @@ export enum cardType {
   MONSTER = 'monster',
   SPELL = 'spell',
   TRAP = 'trap',
+  HERO = 'hero',
 }
 
 export enum cardElement {

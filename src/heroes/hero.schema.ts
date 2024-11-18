@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
-import { cardType } from 'src/cards/card.enum';
+import { HydratedDocument, Types, ObjectId } from 'mongoose';
 import {
   spellsTypes,
   spellsTarget,
@@ -17,9 +16,6 @@ export class ActiveSpell {
 
   @Prop({ required: true })
   description: string;
-
-  @Prop({ required: true, enum: spellsTypes })
-  type: spellsTypes;
 
   @Prop({ required: true, enum: spellsTarget })
   target: spellsTarget;
@@ -58,6 +54,15 @@ export class PassiveSpell {
   value: number;
 }
 
+@Schema()
+export class Image {
+  @Prop({ required: true })
+  url: string;
+
+  @Prop({ required: true })
+  alt: string;
+}
+
 const ActiveSpellSchema = SchemaFactory.createForClass(ActiveSpell);
 const PassiveSpellSchema = SchemaFactory.createForClass(PassiveSpell);
 
@@ -69,14 +74,20 @@ export class Hero {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: true, enum: cardType })
-  type: cardType;
+  @Prop()
+  image: Image;
 
   @Prop({ required: true, type: ActiveSpellSchema })
   activeSpell: ActiveSpell;
 
   @Prop({ required: true, type: PassiveSpellSchema })
   passiveSpell: PassiveSpell;
+
+  @Prop({ required: true })
+  createdAt: Date;
+
+  @Prop({ required: true })
+  updatedAt: Date;
 }
 
-export const HeroSchema = SchemaFactory.createForClass(Hero);
+export const heroSchema = SchemaFactory.createForClass(Hero);

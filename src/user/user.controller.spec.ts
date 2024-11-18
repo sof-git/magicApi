@@ -50,7 +50,7 @@ describe('UserController', () => {
 
     // Sign in and obtain access token before running other tests
     const signInResponse = await authService.signIn('admin', 'password');
-    console.log(signInResponse);
+    
     accessToken = signInResponse.access_token;
   });
 

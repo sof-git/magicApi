@@ -31,10 +31,10 @@ export class UserService {
       const saltOrRounds = 10;
       const hash = await bcrypt.hash(userDto.password, saltOrRounds);
       userDto.password = hash;
-      console.log(userDto);
+      
       return await this.userModel.create(userDto);
     } catch (error) {
-      console.log(error.message);
+      
       throw new Error(error.message);
     }
   }

@@ -5,8 +5,9 @@ import {
   IsEnum,
   IsInt,
   Min,
+  IsDate,
+  IsOptional,
 } from 'class-validator';
-import { cardType } from '../cards/card.enum';
 import {
   spellsTypes,
   spellsTarget,
@@ -75,6 +76,14 @@ export class PassiveSpellDto {
   value: number;
 }
 
+export class ImageDto {
+  @IsString()
+  url: string;
+
+  @IsString()
+  alt: string;
+}
+
 export class HeroDto {
   @IsNotEmpty()
   @IsString()
@@ -85,10 +94,6 @@ export class HeroDto {
   description: string;
 
   @IsNotEmpty()
-  @IsString()
-  type: cardType;
-
-  @IsNotEmpty()
   @Type(() => PassiveSpellDto)
   @ValidateNested()
   passiveSpell: PassiveSpellDto;
@@ -97,4 +102,17 @@ export class HeroDto {
   @ValidateNested()
   @Type(() => ActiveSpellDto)
   activeSpell: ActiveSpellDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ImageDto)
+  img: ImageDto;
+
+  @IsDate()
+  @IsOptional()
+  createdAt: Date;
+
+  @IsDate()
+  @IsOptional()
+  updatedAt: Date;
 }

@@ -16,7 +16,7 @@ export class MapService {
 
   async createMap(mapData: MapDto): Promise<Map | Error> {
     try {
-      console.log('hello', mapData);
+      
       return await this.mapModel.create(mapData);
     } catch (error) {
       throw new Error(error.message);

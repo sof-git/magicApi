@@ -9,7 +9,6 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { HeroDto } from './hero.dto';
 import { HeroService } from './hero.service';
 import { Role } from '../role/role.enum';
 import { Roles } from '../role/roles.decorator';
@@ -26,7 +25,6 @@ export class HeroController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, callback) => {
-          console.log('File:', file);
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
           callback(null, `${uniqueSuffix}-${file.originalname}`);
@@ -41,11 +39,8 @@ export class HeroController {
     @UploadedFile() file: Express.Multer.File,
     @Body('hero') heroJson: string, // Parse hero JSON from the request body
   ) {
-    console.log('before try catch');
     try {
-      console.log('Hero JSON:', heroJson); // Ensure this logs the input
       const heroDto = JSON.parse(heroJson);
-      console.log('Parsed Hero DTO:', heroDto);
       // Call the service and pass both the parsed hero and the file
       const newHero = await this.heroService.createHero(heroDto, file);
 
@@ -55,7 +50,7 @@ export class HeroController {
         data: newHero,
       };
     } catch (error) {
-      throw new error(`Error creating hero: ${error.message}`);
+      throw new Error(`Error creating hero: ${error.message}`);
     }
   }
 
@@ -69,10 +64,35 @@ export class HeroController {
     return this.heroService.findAllHeroes();
   }
 
-  @Put(':name')
+  @Put(':id')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, callback) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          callback(null, `${uniqueSuffix}-${file.originalname}`);
+        },
+      }),
+      limits: {
+        fileSize: 10 * 1024 * 1024, // Limit to 10 MB
+      },
+    }),
+  )
   @Roles(Role.ADMIN)
-  updateHero(@Param('name') name: string, @Body() hero: HeroDto) {
-    return this.heroService.updateHero(name, hero);
+  updateHero(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: any,
+    @Body('hero') hero: string,
+  ) {
+    try {
+      const parsedHero = JSON.parse(hero);
+      // Call the service and pass the parsed hero
+      return this.heroService.updateHero(id, parsedHero);
+    } catch (error) {
+      throw new Error(`Error updating hero: ${error.message}`);
+    }
   }
 
   @Delete(':name')

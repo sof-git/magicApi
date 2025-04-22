@@ -82,6 +82,10 @@ export class ImageDto {
 
   @IsString()
   alt: string;
+
+  @IsOptional()
+  @IsString()
+  data: string;
 }
 
 export class HeroDto {

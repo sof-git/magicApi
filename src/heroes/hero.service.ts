@@ -7,8 +7,10 @@ import { CustomException } from '../common/common.params';
 import { CustomHttpStatus } from '../common/httpStatus.enum';
 import { diskStorage } from 'multer';
 import { join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+import { promisify } from 'util';
+import { mkdirSync, existsSync, readFile, promises as fsPromises } from 'fs';
 
+const readFileAsync = promisify(readFile);
 @Injectable()
 export class HeroService {
   constructor(@InjectModel('Hero') private readonly heroModel: Model<Hero>) {}
@@ -56,6 +58,7 @@ export class HeroService {
       heroDto.img = {
         url: `/uploads/${file.filename}`, // Relative path for static file serving
         alt: `${heroDto.name} image`,
+        data: '',
       };
     }
 
@@ -84,6 +87,13 @@ export class HeroService {
     if (!hero) {
       throw new CustomException('Hero not found', CustomHttpStatus.NOT_FOUND);
     }
+    if (hero.img) {
+      const path = join(__dirname, '..', '..', hero.img.url);
+      console.log(path);
+      const buffer = await readFileAsync(path);
+      const imageAsBase64 = buffer.toString('base64');
+      hero.img.data = imageAsBase64;
+    }
     return hero;
   }
 
@@ -91,9 +101,31 @@ export class HeroService {
    * Find all heroes
    * @returns Hero[]
    */
-  async findAllHeroes(): Promise<HeroDocument[]> {
+  async findAllHeroes(): Promise<Hero[]> {
     try {
-      return await this.heroModel.find();
+      //fetch all images before returning
+      const heroes = await this.heroModel
+        .find()
+        .select('-__v -img._id -img.id -activeSpell._id -passiveSpell._id');
+      const heroesWithImage: Hero[] = await Promise.all(
+        heroes.map(async (hero) => {
+          if (hero.img && hero.img.url) {
+            const path = join(__dirname, '..', '..', hero.img.url); // Adjust the path as needed
+            try {
+              const buffer = await fsPromises.readFile(path);
+              const imageAsBase64 = buffer.toString('base64');
+              hero.img.data = imageAsBase64; // Add Base64 data to the hero object
+            } catch (err) {
+              console.error(
+                `Error reading file for hero ${hero.name}:`,
+                err.message,
+              );
+            }
+          }
+          return hero;
+        }),
+      );
+      return heroesWithImage;
     } catch (error) {
       throw new CustomException(
         'Error fetching heroes',
@@ -112,21 +144,18 @@ export class HeroService {
    * @param heroDto
    * @returns Promise<Hero> | Promise<Error>
    */
-  async updateHero(
-    name: string,
-    heroDto: HeroDto,
-  ): Promise<HeroDocument | Error> {
-    const hero = await this.heroModel.findOne({ name });
+  async updateHero(id: any, heroDto: HeroDto): Promise<HeroDocument | Error> {
+    const hero = await this.heroModel.findOne({ _id: id });
     if (!hero) {
       throw new CustomException('Hero not found', CustomHttpStatus.NOT_FOUND);
     }
     try {
-      return await this.heroModel.findOneAndUpdate({ name }, heroDto, {
+      return await this.heroModel.findOneAndUpdate({ _id: id }, heroDto, {
         new: true,
       });
     } catch (error) {
       throw new CustomException(
-        'Internal server error',
+        `Failed to update hero: ${error.message}`,
         CustomHttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

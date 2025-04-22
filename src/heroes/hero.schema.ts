@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types, ObjectId } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 import {
   spellsTypes,
   spellsTarget,
@@ -61,6 +61,9 @@ export class Image {
 
   @Prop({ required: true })
   alt: string;
+
+  @Prop()
+  data: string;
 }
 
 const ActiveSpellSchema = SchemaFactory.createForClass(ActiveSpell);
@@ -75,7 +78,7 @@ export class Hero {
   description: string;
 
   @Prop()
-  image: Image;
+  img: Image;
 
   @Prop({ required: true, type: ActiveSpellSchema })
   activeSpell: ActiveSpell;
